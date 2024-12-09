@@ -1,22 +1,33 @@
 var canvas = document.getElementById('spaceinvaders');
 var ctx = canvas.getContext("2d");
 
-const sprite = new Image();
-sprite.src = './assets/img/invader01.png';
+const sprite01 = new Image();
+sprite01.src = './assets/img/invader01.png';
+
+const sprite02 = new Image();
+sprite02.src = './assets/img/invader02.png';
+
+const sprite03 = new Image();
+sprite03.src = './assets/img/invader03.png';
+
+const canon = new Image();
+canon.src = '../assets/img/tourelle.png';
 
 let x = 0;
 let y = 0;
 let stepx = 1;
 let stepy = 5;
-let level = 1;
+let level = 0;
 let isPlaying = false;
 
+let canonpos = 0;
+
 let invaders = [
+    [2, 2, 2, 2, 2, 2, 2, 2],
     [1, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1]];
+    [3, 3, 3, 3, 3, 3, 3, 3],
+    [3, 3, 3, 3, 3, 3, 3, 3]];
 
 let bullets = [];
 
@@ -26,13 +37,17 @@ function newLevel() {
     x = 0;
     y = 0;
     invaders = [
+        [2, 2, 2, 2, 2, 2, 2, 2],
         [1, 1, 1, 1, 1, 1, 1, 1],
         [1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1]];
+        [3, 3, 3, 3, 3, 3, 3, 3],
+        [3, 3, 3, 3, 3, 3, 3, 3]];
     bullets = [];
+
+    canonpos = canvas.width / 2;
 }
+
+newLevel()
 
 function canStep(step) {
     let canmove = true;
@@ -95,8 +110,12 @@ function animateInvaders() {
 
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 5; j++) {
-            if (invaders[j][i])
-                ctx.drawImage(sprite, x + 32 * i, y + 24 * j);
+            if (invaders[j][i] == 1)
+                ctx.drawImage(sprite01, x + 32 * i, y + 24 * j);
+            else if (invaders[j][i] == 2)
+                ctx.drawImage(sprite02, x + 32 * i, y + 24 * j);
+            else if (invaders[j][i] == 3)
+                ctx.drawImage(sprite03, x + 32 * i, y + 24 * j);
         }
     }
 
@@ -117,21 +136,59 @@ function animateInvaders() {
 
     }
 
+    ctx.drawImage(canon, canonpos - 16, canvas.height - 24);
+
     if (isPlaying) {
         // Request the next frame
         requestAnimationFrame(animateInvaders);
     }
 }
 
-sprite.onload = function () {
-    animateInvaders();
+
+let loaded = 0;
+const toload = 4;
+
+sprite01.onload = function () {
+    loaded++;
+    if (loaded == toload)
+        animateInvaders();
 };
+
+sprite02.onload = function () {
+    loaded++;
+    if (loaded == toload)
+        animateInvaders();
+};
+
+sprite03.onload = function () {
+    loaded++;
+    if (loaded == toload)
+        animateInvaders();
+};
+
+canon.onload = function () {
+    loaded++;
+    if (loaded == toload)
+        animateInvaders();
+}
+
+const goLeft = document.getElementById("left");
+goLeft.addEventListener('click', () => {
+    if (canonpos >= 5)
+        canonpos -= 5;
+});
+
+const goRight = document.getElementById("right");
+goRight.addEventListener("click", () => {
+    if (canonpos <= (canvas.width - 5))
+        canonpos += 5;
+})
 
 const fireButton = document.getElementById("firebutton");
 fireButton.addEventListener('click', () => {
     if (isPlaying) {
         let width = canvas.width;
-        let posx = Math.floor(Math.random() * width);
+        let posx = canonpos;
         let posy = canvas.height;
         let newbullet = [posx, posy];
 
