@@ -10,6 +10,9 @@ sprite02.src = './assets/img/invader02.png';
 const sprite03 = new Image();
 sprite03.src = './assets/img/invader03.png';
 
+const explode = new Image();
+explode.src = './assets/img/explode.png';
+
 const canon = new Image();
 canon.src = '../assets/img/tourelle.png';
 
@@ -73,7 +76,7 @@ function canStep(step) {
                 for (let k = 0; k < bullets.length; k++) {
                     if (((bullets[k][0] > posx) && (bullets[k][0] < (posx + 32))) &&
                         ((bullets[k][1] > posy) && (bullets[k][1] < (posy + 24)))) {
-                        invaders[j][i] = 0;
+                        invaders[j][i] = 16;
                         bullets[k][1] = 0;
                     }
                 }
@@ -116,6 +119,12 @@ function animateInvaders() {
                 ctx.drawImage(sprite02, x + 32 * i, y + 24 * j);
             else if (invaders[j][i] == 3)
                 ctx.drawImage(sprite03, x + 32 * i, y + 24 * j);
+            else if (invaders[j][i] > 10) {
+                ctx.drawImage(explode, x + 32 * i, y + 24 * j);
+                invaders[j][i]--;
+            }
+            else if (invaders[j][i] == 10)
+                invaders[j][i] = 0;
         }
     }
 
@@ -146,7 +155,7 @@ function animateInvaders() {
 
 
 let loaded = 0;
-const toload = 4;
+const toload = 5;
 
 sprite01.onload = function () {
     loaded++;
@@ -161,6 +170,12 @@ sprite02.onload = function () {
 };
 
 sprite03.onload = function () {
+    loaded++;
+    if (loaded == toload)
+        animateInvaders();
+};
+
+explode.onload = function () {
     loaded++;
     if (loaded == toload)
         animateInvaders();
