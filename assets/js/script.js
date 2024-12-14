@@ -1,20 +1,42 @@
 var canvas = document.getElementById('spaceinvaders');
 var ctx = canvas.getContext("2d");
 
+const spr_list = [
+    './assets/img/invader01.png',
+    './assets/img/invader02.png',
+    './assets/img/invader03.png',
+    './assets/img/explode.png',
+    './assets/img/tourelle.png',
+    './assets/img/missile.png',
+    './assets/img/bunker.png'
+];
+
 const sprite01 = new Image();
-sprite01.src = './assets/img/invader01.png';
+sprite01.src = spr_list[0];
 
 const sprite02 = new Image();
-sprite02.src = './assets/img/invader02.png';
+sprite02.src = spr_list[1];
 
 const sprite03 = new Image();
-sprite03.src = './assets/img/invader03.png';
+sprite03.src = spr_list[2];
 
 const explode = new Image();
-explode.src = './assets/img/explode.png';
+explode.src = spr_list[3];
 
 const canon = new Image();
-canon.src = '../assets/img/tourelle.png';
+canon.src = spr_list[4];
+
+const missile = new Image();
+missile.src = spr_list[5];
+
+const bunker = new Image();
+bunker.src = spr_list[6];
+
+// Off screen canavas
+var offScreenCanvas = document.createElement("canvas");
+offScreenCanvas.width = canvas.width;
+offScreenCanvas.height = canvas.height;
+var offscreenctx = offScreenCanvas.getContext("2d");
 
 let x = 0;
 let y = 0;
@@ -25,20 +47,24 @@ let isPlaying = false;
 
 let canonpos = 0;
 
-let invaders = [
-    [2, 2, 2, 2, 2, 2, 2, 2],
-    [1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1],
-    [3, 3, 3, 3, 3, 3, 3, 3],
-    [3, 3, 3, 3, 3, 3, 3, 3]];
-
+let invaders = [];
 let bullets = [];
 
-function newLevel() {
-    level++;
+let pressedKeys = {
+    left: 0,
+    right: 0,
+    fire: 0,
+};
+
+function newLevel(reset) {
+    if (reset)
+        level = 0;
+    else
+        level++;
 
     x = 0;
     y = 0;
+
     invaders = [
         [2, 2, 2, 2, 2, 2, 2, 2],
         [1, 1, 1, 1, 1, 1, 1, 1],
@@ -47,10 +73,15 @@ function newLevel() {
         [3, 3, 3, 3, 3, 3, 3, 3]];
     bullets = [];
 
+    offscreenctx.clearRect(0, 0, canvas.width, canvas.height);
+    const steps = canvas.width / 4;
+
+    offscreenctx.drawImage(bunker, steps - 64, canvas.height - 80);
+    offscreenctx.drawImage(bunker, 2 * steps - 32, canvas.height - 80);
+    offscreenctx.drawImage(bunker, 3 * steps, canvas.height - 80);
+
     canonpos = canvas.width / 2;
 }
-
-newLevel()
 
 function canStep(step) {
     let canmove = true;
@@ -85,12 +116,12 @@ function canStep(step) {
     }
 
     if (count === 0) {
-        newLevel();
+        newLevel(false);
     }
 
     if (lost) {
         playButton.value = "Play Game";
-        newLevel();
+        newLevel(false);
         isPlaying = false;
     }
 
@@ -110,6 +141,7 @@ function animateInvaders() {
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(offScreenCanvas, 0, 0);
 
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 5; j++) {
@@ -150,69 +182,84 @@ function animateInvaders() {
     if (isPlaying) {
         // Request the next frame
         requestAnimationFrame(animateInvaders);
+
+        if (pressedKeys["left"]) {
+            doGoLeft();
+        }
+        if (pressedKeys["right"]) {
+            doGoRight();
+        }
+        if (pressedKeys["fire"]) {
+            doFire();
+        }
     }
 }
 
+/* Wait for every sprite is Loaded */
 
 let loaded = 0;
-const toload = 5;
+const toload = 7;
+
+function checkEverithingLoaded() {
+    loaded++;
+    if (loaded == toload) {
+        newLevel(true);
+        animateInvaders();
+    }
+}
 
 sprite01.onload = function () {
-    loaded++;
-    if (loaded == toload)
-        animateInvaders();
+    checkEverithingLoaded();
 };
 
 sprite02.onload = function () {
-    loaded++;
-    if (loaded == toload)
-        animateInvaders();
+    checkEverithingLoaded();
 };
 
 sprite03.onload = function () {
-    loaded++;
-    if (loaded == toload)
-        animateInvaders();
+    checkEverithingLoaded();
 };
 
 explode.onload = function () {
-    loaded++;
-    if (loaded == toload)
-        animateInvaders();
+    checkEverithingLoaded();
 };
 
 canon.onload = function () {
-    loaded++;
-    if (loaded == toload)
-        animateInvaders();
+    checkEverithingLoaded();
 }
 
-const goLeft = document.getElementById("left");
-goLeft.addEventListener('click', () => {
+missile.onload = function () {
+    checkEverithingLoaded();
+}
+
+bunker.onload = function () {
+    checkEverithingLoaded();
+}
+
+/* Animate functions */
+
+function doGoLeft() {
     if (canonpos >= 5)
         canonpos -= 5;
-});
+}
 
-const goRight = document.getElementById("right");
-goRight.addEventListener("click", () => {
+function doGoRight() {
     if (canonpos <= (canvas.width - 5))
         canonpos += 5;
-})
+}
 
-const fireButton = document.getElementById("firebutton");
-fireButton.addEventListener('click', () => {
+function doFire() {
     if (isPlaying) {
         let width = canvas.width;
         let posx = canonpos;
-        let posy = canvas.height;
+        let posy = canvas.height - 24;
         let newbullet = [posx, posy];
 
         bullets.push(newbullet);
     }
-});
+}
 
-const playButton = document.getElementById("playbutton");
-playButton.addEventListener('click', () => {
+function doPlayPause() {
     if (!isPlaying) {
         isPlaying = true;
 
@@ -225,4 +272,42 @@ playButton.addEventListener('click', () => {
         isPlaying = false;
         playButton.value = "Play Game";
     }
+}
+
+document.body.addEventListener("keydown", (ev) => {
+    if (ev.key == "ArrowLeft") {
+        pressedKeys["left"] = 1;
+    }
+    else if (ev.key == "ArrowRight") {
+        pressedKeys["right"] = 1;
+    }
+    else if (ev.key == " ") {
+        pressedKeys["fire"] = 1;
+    }
+    else if (ev.key == "p")
+        doPlayPause();
 });
+
+document.body.addEventListener("keyup", (ev) => {
+    if (ev.key == "ArrowLeft") {
+        pressedKeys["left"] = 0;
+    }
+    else if (ev.key == "ArrowRight") {
+        pressedKeys["right"] = 0;
+    }
+    else if (ev.key == " ") {
+        pressedKeys["fire"] = 0;
+    }
+})
+
+const goLeft = document.getElementById("left");
+goLeft.addEventListener('click', doGoLeft);
+
+const goRight = document.getElementById("right");
+goRight.addEventListener("click", doGoRight);
+
+const fireButton = document.getElementById("firebutton");
+fireButton.addEventListener('click', doFire);
+
+const playButton = document.getElementById("playbutton");
+playButton.addEventListener('click', doPlayPause);
