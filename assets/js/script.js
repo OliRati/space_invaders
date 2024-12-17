@@ -38,12 +38,16 @@ offScreenCanvas.width = canvas.width;
 offScreenCanvas.height = canvas.height;
 var offscreenctx = offScreenCanvas.getContext("2d");
 
+let framenb = 0;
+let heat = 0;
+
 let x = 0;
 let y = 0;
 let stepx = 1;
 let stepy = 5;
 let level = 0;
 let isPlaying = false;
+let gameOver = true;
 
 let canonpos = 0;
 
@@ -57,10 +61,16 @@ let pressedKeys = {
 };
 
 function newLevel(reset) {
-    if (reset)
+    if (reset) {
         level = 0;
-    else
+    }
+    else {
         level++;
+    }
+
+    stepx = (level + 1) / 2.0;
+
+    heat = 0;
 
     x = 0;
     y = 0;
@@ -81,6 +91,8 @@ function newLevel(reset) {
     offscreenctx.drawImage(bunker, 3 * steps, canvas.height - 80);
 
     canonpos = canvas.width / 2;
+
+    document.getElementById("gamestatus").innerHTML = 'Get ready for level ' + level;
 }
 
 function canStep(step) {
@@ -120,15 +132,21 @@ function canStep(step) {
     }
 
     if (lost) {
-        playButton.value = "Play Game";
-        newLevel(false);
+        gameOver = true;
         isPlaying = false;
+        document.getElementById("gamestatus").innerHTML = 'You fail, invasion is done !';
+        playButton.value = "Play Game";
     }
 
     return canmove;
 }
 
 function animateInvaders() {
+    framenb++;
+    if (framenb >= 16) {
+        framenb = 0;
+    }
+
     if (canStep(stepx))
         x += stepx;
     else {
@@ -164,34 +182,60 @@ function animateInvaders() {
     for (let i = 0; i < bullets.length; i++) {
         let newbulletpos = bullets[i][1] - 3;
         if (newbulletpos > 0) {
-            ctx.beginPath();
-            ctx.moveTo(bullets[i][0], newbulletpos);
-            ctx.lineTo(bullets[i][0], newbulletpos + 10);
-            ctx.stroke();
-
+            ctx.drawImage(missile, bullets[i][0] - 16, newbulletpos - 18);
             bullets[i][1] = newbulletpos;
         }
         else {
             bullets[i][1] = 0;
         }
-
     }
 
-    ctx.drawImage(canon, canonpos - 16, canvas.height - 24);
+    // Draw Gun heat level
+    let level = (canvas.width - 20) * Math.min(1000, heat) / 1000;
+    ctx.beginPath();
+    ctx.moveTo(10, canvas.height - 5);
+    ctx.lineTo(10 + level, canvas.height - 5);
+    ctx.stroke();
+
+    if (heat > 1000)
+        ctx.drawImage(explode, canonpos - 16, canvas.height - 24);
+    else
+        ctx.drawImage(canon, canonpos - 16, canvas.height - 24);
+
+    if (isPlaying) {
+        if (heat < 10)
+            heat = 0;
+        else if (heat > 1000) {
+            gameOver = true;
+            isPlaying = false;
+            document.getElementById("gamestatus").innerHTML = '<div style="color: red;">Too much heat, gun exploded, you failed !!!!</div>';
+            playButton.value = "Play Game";
+        }
+        else {
+            heat -= 10;
+        }
+
+
+        if ((framenb & 1) == 1) {
+            if (pressedKeys["left"]) {
+                doGoLeft();
+            }
+            if (pressedKeys["right"]) {
+                doGoRight();
+            }
+        }
+
+        if ((framenb & 7) == 7) {
+            if (pressedKeys["fire"]) {
+                doFire();
+                heat += 100;
+            }
+        }
+    }
 
     if (isPlaying) {
         // Request the next frame
         requestAnimationFrame(animateInvaders);
-
-        if (pressedKeys["left"]) {
-            doGoLeft();
-        }
-        if (pressedKeys["right"]) {
-            doGoRight();
-        }
-        if (pressedKeys["fire"]) {
-            doFire();
-        }
     }
 }
 
@@ -239,18 +283,21 @@ bunker.onload = function () {
 /* Animate functions */
 
 function doGoLeft() {
-    if (canonpos >= 5)
-        canonpos -= 5;
+    if (isPlaying) {
+        if (canonpos >= 5)
+            canonpos -= 5;
+    }
 }
 
 function doGoRight() {
-    if (canonpos <= (canvas.width - 5))
-        canonpos += 5;
+    if (isPlaying) {
+        if (canonpos <= (canvas.width - 5))
+            canonpos += 5;
+    }
 }
 
 function doFire() {
     if (isPlaying) {
-        let width = canvas.width;
         let posx = canonpos;
         let posy = canvas.height - 24;
         let newbullet = [posx, posy];
@@ -262,6 +309,11 @@ function doFire() {
 function doPlayPause() {
     if (!isPlaying) {
         isPlaying = true;
+
+        if (gameOver) {
+            gameOver = false;
+            newLevel(true);
+        }
 
         playButton.value = "Pause Game";
 
@@ -281,7 +333,7 @@ document.body.addEventListener("keydown", (ev) => {
     else if (ev.key == "ArrowRight") {
         pressedKeys["right"] = 1;
     }
-    else if (ev.key == " ") {
+    else if (ev.key == "f") {
         pressedKeys["fire"] = 1;
     }
     else if (ev.key == "p")
@@ -295,7 +347,7 @@ document.body.addEventListener("keyup", (ev) => {
     else if (ev.key == "ArrowRight") {
         pressedKeys["right"] = 0;
     }
-    else if (ev.key == " ") {
+    else if (ev.key == "f") {
         pressedKeys["fire"] = 0;
     }
 })
