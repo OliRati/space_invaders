@@ -208,7 +208,7 @@ function animateInvaders() {
         else if (heat > 1000) {
             gameOver = true;
             isPlaying = false;
-            document.getElementById("gamestatus").innerHTML = '<div style="color: red;">Gun explosion due to too much heat, you failed !!!!</div>';
+            document.getElementById("gamestatus").innerHTML = '<div style="color: red;">Gun explosion due to heat, you failed !</div>';
             playButton.value = "Play Game";
         }
         else {
@@ -228,7 +228,6 @@ function animateInvaders() {
         if ((framenb & 7) == 7) {
             if (pressedKeys["fire"]) {
                 doFire();
-                heat += 100;
             }
         }
     }
@@ -303,6 +302,8 @@ function doFire() {
         let newbullet = [posx, posy];
 
         bullets.push(newbullet);
+
+        heat += 100;
     }
 }
 
