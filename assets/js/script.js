@@ -134,7 +134,7 @@ function canStep(step) {
     if (lost) {
         gameOver = true;
         isPlaying = false;
-        document.getElementById("gamestatus").innerHTML = 'You fail, invasion is done !';
+        document.getElementById("gamestatus").innerHTML = 'You failed, invasion is complete !';
         playButton.value = "Play Game";
     }
 
@@ -208,7 +208,7 @@ function animateInvaders() {
         else if (heat > 1000) {
             gameOver = true;
             isPlaying = false;
-            document.getElementById("gamestatus").innerHTML = '<div style="color: red;">Too much heat, gun exploded, you failed !!!!</div>';
+            document.getElementById("gamestatus").innerHTML = '<div style="color: red;">Gun explosion due to too much heat, you failed !!!!</div>';
             playButton.value = "Play Game";
         }
         else {
