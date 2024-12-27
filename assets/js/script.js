@@ -11,7 +11,7 @@ var ctx = canvas.getContext("2d");
 var offScreenCanvas = document.createElement("canvas");
 offScreenCanvas.width = canvas.width;
 offScreenCanvas.height = canvas.height;
-var offscreenctx = offScreenCanvas.getContext("2d", {willReadFrequently: false} );
+var offscreenctx = offScreenCanvas.getContext("2d", { willReadFrequently: false });
 
 const spr_list = [
     './assets/img/invader01.png',
@@ -19,7 +19,8 @@ const spr_list = [
     './assets/img/invader03.png',
     './assets/img/explode.png',
     './assets/img/tourelle.png',
-    './assets/img/missile.png',
+    './assets/img/missileup.png',
+    './assets/img/missiledown.png',
     './assets/img/bunker.png'
 ];
 
@@ -38,11 +39,14 @@ explode.src = spr_list[3];
 const canon = new Image();
 canon.src = spr_list[4];
 
-const missile = new Image();
-missile.src = spr_list[5];
+const missileup = new Image();
+missileup.src = spr_list[5];
+
+const missiledown = new Image();
+missiledown.src = spr_list[6];
 
 const bunker = new Image();
-bunker.src = spr_list[6];
+bunker.src = spr_list[7];
 
 let framenb = 0;
 let heat = 0;
@@ -121,7 +125,7 @@ function canStep(step) {
                     canmove = false;
 
                 // Invasion is done
-                if ((posy + 24 >= canvas.height)) {
+                if ((posy + 24) >= (canvas.height - 60)) {
                     lost = true;
                 }
 
@@ -161,6 +165,7 @@ function animateInvaders() {
     framenb++;
     if (framenb >= 16) {
         framenb = 0;
+        doInvadersFire();
     }
 
     if (canStep(stepx))
@@ -197,9 +202,13 @@ function animateInvaders() {
     // Animation of the bullets
     let removedbullets = 0
     for (let i = 0; i < bullets.length; i++) {
-        let newbulletpos = bullets[i][1] - 3;
-        if (newbulletpos > 0) {
-            ctx.drawImage(missile, bullets[i][0] - 16, newbulletpos - 18);
+        let newbulletpos = bullets[i][1] + bullets[i][2];
+        if ((newbulletpos > 0) && (newbulletpos < canvas.height)) {
+            if (bullets[i][2] < 0)
+                ctx.drawImage(missileup, bullets[i][0] - 1, newbulletpos - 3);
+            else if (bullets[i][2] > 0)
+                ctx.drawImage(missiledown, bullets[i][0] - 1, newbulletpos - 3);
+
             bullets[i][1] = newbulletpos;
         }
         else {
@@ -221,18 +230,21 @@ function animateInvaders() {
     for (let nb = 0; nb < bullets.length; nb++) {
         let xPos = bullets[nb][0];
         let yPos = bullets[nb][1];
+
         let offset = 4 * (yPos * canvas.width + xPos);
 
         if (yPos > 0) {
             let hit = false;
-            for (let k = -2; k <= 2; k++) {
-                if (data[offset + 4 * k + 3] != 0)
+
+            for (let i = -2; i <= 2; i++) {
+                if (data[offset + 4 * i + 3] != 0)
                     hit = true;
             }
 
             if (hit) {
+                console.log("Hit bunker");
                 for (let i = -2; i <= 2; i++) {
-                    for (let j = -2; j <= 2; j++) {
+                    for (let j = -3; j <= 3; j++) {
                         data[offset + 4 * (j * canvas.width + i) + 3] = 0;
                     }
                 }
@@ -303,7 +315,7 @@ function animateInvaders() {
 /* Wait for every sprite is Loaded */
 
 let loaded = 0;
-const toload = 7;
+const toload = spr_list.length;
 
 function checkEverythingLoaded() {
     loaded++;
@@ -333,7 +345,11 @@ canon.onload = function () {
     checkEverythingLoaded();
 }
 
-missile.onload = function () {
+missileup.onload = function () {
+    checkEverythingLoaded();
+}
+
+missiledown.onload = function () {
     checkEverythingLoaded();
 }
 
@@ -361,11 +377,36 @@ function doFire() {
     if (isPlaying) {
         let posx = canonpos;
         let posy = canvas.height - 24;
-        let newbullet = [posx, posy];
+        let newbullet = [posx, posy, -3];
 
         bullets.push(newbullet);
 
         heat += 100;
+    }
+}
+
+function doInvadersFire() {
+    let posx = 0;
+    let posy = 0;
+
+    if (isPlaying) {
+        for (let i = 0; i < 8; i++) {
+            let maxj = -1;
+            for (let j = 0; j < 5; j++) {
+                if (invaders[j][i]) {
+                    maxj = j;
+                    posx = 32 * i + Math.floor(x) + 16;
+                    posy = 24 * j + y + 24 + 6;
+                }
+            }
+
+            if (maxj >= 0) {
+                if (Math.random() < 0.1) {
+                    let newbullet = [posx, posy, 3];
+                    bullets.push(newbullet);
+                }
+            }
+        }
     }
 }
 
