@@ -1,3 +1,8 @@
+// Chek if the browser supports tactile events
+if ('ontouchstart' in window) {
+    document.body.classList.add('tactile');
+}
+
 // Front screen canvas
 var canvas = document.getElementById('spaceinvaders');
 var ctx = canvas.getContext("2d");
@@ -6,7 +11,7 @@ var ctx = canvas.getContext("2d");
 var offScreenCanvas = document.createElement("canvas");
 offScreenCanvas.width = canvas.width;
 offScreenCanvas.height = canvas.height;
-var offscreenctx = offScreenCanvas.getContext("2d", true);
+var offscreenctx = offScreenCanvas.getContext("2d", {willReadFrequently: false} );
 
 const spr_list = [
     './assets/img/invader01.png',
@@ -82,6 +87,7 @@ function newLevel(reset) {
         [1, 1, 1, 1, 1, 1, 1, 1],
         [3, 3, 3, 3, 3, 3, 3, 3],
         [3, 3, 3, 3, 3, 3, 3, 3]];
+
     bullets = [];
 
     // Redraw the bunkers
@@ -230,7 +236,7 @@ function animateInvaders() {
                         data[offset + 4 * (j * canvas.width + i) + 3] = 0;
                     }
                 }
-                
+
                 bullets[nb][1] = 0;
                 removedbullets++;
             }
