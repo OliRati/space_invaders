@@ -212,19 +212,26 @@ function animateInvaders() {
     let data = imageData.data;
     removedbullets = 0;
 
-    for (let i = 0; i < bullets.length; i++) {
-        let xPos = bullets[i][0];
-        let yPos = bullets[i][1];
+    for (let nb = 0; nb < bullets.length; nb++) {
+        let xPos = bullets[nb][0];
+        let yPos = bullets[nb][1];
         let offset = 4 * (yPos * canvas.width + xPos);
 
         if (yPos > 0) {
-            if (data[offset + 3] != 0) {
+            let hit = false;
+            for (let k = -2; k <= 2; k++) {
+                if (data[offset + 4 * k + 3] != 0)
+                    hit = true;
+            }
+
+            if (hit) {
                 for (let i = -2; i <= 2; i++) {
                     for (let j = -2; j <= 2; j++) {
                         data[offset + 4 * (j * canvas.width + i) + 3] = 0;
                     }
                 }
-                bullets[i][1] = 0;
+                
+                bullets[nb][1] = 0;
                 removedbullets++;
             }
         }
@@ -332,15 +339,15 @@ bunker.onload = function () {
 
 function doGoLeft() {
     if (isPlaying) {
-        if (canonpos >= 5)
-            canonpos -= 5;
+        if (canonpos >= (4 + 8))
+            canonpos -= 4;
     }
 }
 
 function doGoRight() {
     if (isPlaying) {
-        if (canonpos <= (canvas.width - 5))
-            canonpos += 5;
+        if (canonpos <= (canvas.width - 4 - 8))
+            canonpos += 4;
     }
 }
 
