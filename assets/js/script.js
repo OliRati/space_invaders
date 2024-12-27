@@ -1,5 +1,12 @@
+// Front screen canvas
 var canvas = document.getElementById('spaceinvaders');
 var ctx = canvas.getContext("2d");
+
+// Off screen canvas
+var offScreenCanvas = document.createElement("canvas");
+offScreenCanvas.width = canvas.width;
+offScreenCanvas.height = canvas.height;
+var offscreenctx = offScreenCanvas.getContext("2d", true);
 
 const spr_list = [
     './assets/img/invader01.png',
@@ -31,12 +38,6 @@ missile.src = spr_list[5];
 
 const bunker = new Image();
 bunker.src = spr_list[6];
-
-// Off screen canavas
-var offScreenCanvas = document.createElement("canvas");
-offScreenCanvas.width = canvas.width;
-offScreenCanvas.height = canvas.height;
-var offscreenctx = offScreenCanvas.getContext("2d");
 
 let framenb = 0;
 let heat = 0;
@@ -83,13 +84,15 @@ function newLevel(reset) {
         [3, 3, 3, 3, 3, 3, 3, 3]];
     bullets = [];
 
+    // Redraw the bunkers
     offscreenctx.clearRect(0, 0, canvas.width, canvas.height);
     const steps = canvas.width / 4;
 
-    offscreenctx.drawImage(bunker, steps - 64, canvas.height - 80);
-    offscreenctx.drawImage(bunker, 2 * steps - 32, canvas.height - 80);
-    offscreenctx.drawImage(bunker, 3 * steps, canvas.height - 80);
+    offscreenctx.drawImage(bunker, steps - 64, canvas.height - 70);
+    offscreenctx.drawImage(bunker, 2 * steps - 32, canvas.height - 70);
+    offscreenctx.drawImage(bunker, 3 * steps, canvas.height - 70);
 
+    // reset the canon position
     canonpos = canvas.width / 2;
 
     document.getElementById("gamestatus").innerHTML = 'Get ready for level ' + level;
@@ -99,6 +102,7 @@ function canStep(step) {
     let canmove = true;
     let lost = false;
     let count = 0;
+    let removedbullets = 0;
 
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 5; j++) {
@@ -121,10 +125,16 @@ function canStep(step) {
                         ((bullets[k][1] > posy) && (bullets[k][1] < (posy + 24)))) {
                         invaders[j][i] = 16;
                         bullets[k][1] = 0;
+                        removedbullets++;
                     }
                 }
             }
         }
+    }
+
+    // Remove the bullets that hit the invaders
+    if (removedbullets > 0) {
+        bullets = bullets.filter((bullet) => bullet[1] > 0);
     }
 
     if (count === 0) {
@@ -159,8 +169,8 @@ function animateInvaders() {
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(offScreenCanvas, 0, 0);
 
+    // Draw invaders grid
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 5; j++) {
             if (invaders[j][i] == 1)
@@ -178,7 +188,8 @@ function animateInvaders() {
         }
     }
 
-    // Animate bullets
+    // Animation of the bullets
+    let removedbullets = 0
     for (let i = 0; i < bullets.length; i++) {
         let newbulletpos = bullets[i][1] - 3;
         if (newbulletpos > 0) {
@@ -187,10 +198,48 @@ function animateInvaders() {
         }
         else {
             bullets[i][1] = 0;
+            removedbullets++;
         }
     }
 
-    // Draw Gun heat level
+    // Remove the bullets that are out of the screen
+    if (removedbullets > 0) {
+        bullets = bullets.filter((bullet) => bullet[1] > 0);
+    }
+
+    // Draw the bunkers destructed by bullets
+    let imageData = offscreenctx.getImageData(0, 0, canvas.width, canvas.height);
+    let data = imageData.data;
+    removedbullets = 0;
+
+    for (let i = 0; i < bullets.length; i++) {
+        let xPos = bullets[i][0];
+        let yPos = bullets[i][1];
+        let offset = 4 * (yPos * canvas.width + xPos);
+
+        if (yPos > 0) {
+            if (data[offset + 3] != 0) {
+                for (let i = -2; i <= 2; i++) {
+                    for (let j = -2; j <= 2; j++) {
+                        data[offset + 4 * (j * canvas.width + i) + 3] = 0;
+                    }
+                }
+                bullets[i][1] = 0;
+                removedbullets++;
+            }
+        }
+    }
+
+    // Remove the bullets that exploded the bunkers
+    if (removedbullets > 0) {
+        bullets = bullets.filter((bullet) => bullet[1] > 0);
+    }
+
+    offscreenctx.putImageData(imageData, 0, 0);
+
+    ctx.drawImage(offScreenCanvas, 0, 0);
+
+    // Draw canon heat level
     let level = (canvas.width - 20) * Math.min(1000, heat) / 1000;
     ctx.beginPath();
     ctx.moveTo(10, canvas.height - 5);
@@ -243,7 +292,7 @@ function animateInvaders() {
 let loaded = 0;
 const toload = 7;
 
-function checkEverithingLoaded() {
+function checkEverythingLoaded() {
     loaded++;
     if (loaded == toload) {
         newLevel(true);
@@ -252,31 +301,31 @@ function checkEverithingLoaded() {
 }
 
 sprite01.onload = function () {
-    checkEverithingLoaded();
+    checkEverythingLoaded();
 };
 
 sprite02.onload = function () {
-    checkEverithingLoaded();
+    checkEverythingLoaded();
 };
 
 sprite03.onload = function () {
-    checkEverithingLoaded();
+    checkEverythingLoaded();
 };
 
 explode.onload = function () {
-    checkEverithingLoaded();
+    checkEverythingLoaded();
 };
 
 canon.onload = function () {
-    checkEverithingLoaded();
+    checkEverythingLoaded();
 }
 
 missile.onload = function () {
-    checkEverithingLoaded();
+    checkEverythingLoaded();
 }
 
 bunker.onload = function () {
-    checkEverithingLoaded();
+    checkEverythingLoaded();
 }
 
 /* Animate functions */
