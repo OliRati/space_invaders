@@ -36,8 +36,8 @@ sprite03.src = spr_list[2];
 const explode = new Image();
 explode.src = spr_list[3];
 
-const canon = new Image();
-canon.src = spr_list[4];
+const cannon = new Image();
+cannon.src = spr_list[4];
 
 const missileup = new Image();
 missileup.src = spr_list[5];
@@ -58,8 +58,9 @@ let stepy = 5;
 let level = 0;
 let isPlaying = false;
 let gameOver = true;
+let hitcannon = false;
 
-let canonpos = 0;
+let cannonpos = 0;
 
 let invaders = [];
 let bullets = [];
@@ -81,6 +82,7 @@ function newLevel(reset) {
     stepx = (level + 1) / 2.0;
 
     heat = 0;
+    hitcannon = false;
 
     x = 0;
     y = 0;
@@ -102,8 +104,8 @@ function newLevel(reset) {
     offscreenctx.drawImage(bunker, 2 * steps - 32, canvas.height - 70);
     offscreenctx.drawImage(bunker, 3 * steps, canvas.height - 70);
 
-    // reset the canon position
-    canonpos = canvas.width / 2;
+    // reset the cannon position
+    cannonpos = canvas.width / 2;
 
     document.getElementById("gamestatus").innerHTML = 'Get ready for level ' + level;
 }
@@ -255,28 +257,44 @@ function animateInvaders() {
         }
     }
 
+    offscreenctx.putImageData(imageData, 0, 0);
+
     // Remove the bullets that exploded the bunkers
     if (removedbullets > 0) {
         bullets = bullets.filter((bullet) => bullet[1] > 0);
     }
 
-    offscreenctx.putImageData(imageData, 0, 0);
-
     ctx.drawImage(offScreenCanvas, 0, 0);
 
-    // Draw canon heat level
+    // Check if bullets hit the cannon
+    for (let i = 0; i < bullets.length; i++) {
+        if ((bullets[i][0] > (cannonpos - 8)) && (bullets[i][0] < (cannonpos + 8)) &&
+            (bullets[i][1] > (canvas.height - 24)) && (bullets[i][1] < canvas.height)) {
+            hitcannon = true;
+            bullets[i][1] = 0;
+        }
+    }
+
+    // Draw cannon heat level
     let level = (canvas.width - 20) * Math.min(1000, heat) / 1000;
     ctx.beginPath();
     ctx.moveTo(10, canvas.height - 5);
     ctx.lineTo(10 + level, canvas.height - 5);
     ctx.stroke();
 
-    if (heat > 1000)
-        ctx.drawImage(explode, canonpos - 16, canvas.height - 24);
+    if ((heat > 1000) || (hitcannon))
+        ctx.drawImage(explode, cannonpos - 16, canvas.height - 24);
     else
-        ctx.drawImage(canon, canonpos - 16, canvas.height - 24);
+        ctx.drawImage(cannon, cannonpos - 16, canvas.height - 24);
 
     if (isPlaying) {
+        if (hitcannon) {
+            gameOver = true;
+            isPlaying = false;
+            document.getElementById("gamestatus").innerHTML = '<div style="color: red;">Cannon was hit, you failed !</div>';
+            playButton.value = "Play Game";
+        }
+
         if (heat < 10)
             heat = 0;
         else if (heat > 1000) {
@@ -341,7 +359,7 @@ explode.onload = function () {
     checkEverythingLoaded();
 };
 
-canon.onload = function () {
+cannon.onload = function () {
     checkEverythingLoaded();
 }
 
@@ -361,21 +379,21 @@ bunker.onload = function () {
 
 function doGoLeft() {
     if (isPlaying) {
-        if (canonpos >= (4 + 8))
-            canonpos -= 4;
+        if (cannonpos >= (4 + 8))
+            cannonpos -= 4;
     }
 }
 
 function doGoRight() {
     if (isPlaying) {
-        if (canonpos <= (canvas.width - 4 - 8))
-            canonpos += 4;
+        if (cannonpos <= (canvas.width - 4 - 8))
+            cannonpos += 4;
     }
 }
 
 function doFire() {
     if (isPlaying) {
-        let posx = canonpos;
+        let posx = cannonpos;
         let posy = canvas.height - 24;
         let newbullet = [posx, posy, -3];
 
