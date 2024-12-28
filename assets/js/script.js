@@ -57,7 +57,7 @@ let stepx = 1;
 let stepy = 5;
 let level = 0;
 let isPlaying = false;
-let gameOver = true;
+let gameOver = false;
 let hitcannon = false;
 
 let cannonpos = 0;
@@ -163,11 +163,31 @@ function canStep(step) {
     return canmove;
 }
 
+function displayState(text) {
+    // Set the font properties
+    ctx.font = '30px Arial';
+    ctx.fillStyle = 'black';
+
+    // Get the width of the text
+    const width = ctx.measureText(text).width;
+
+    // Calculate the position of the text (centered)
+    const posx = (canvas.width - width) / 2;
+    const posy = (canvas.height) / 2;
+
+    // Draw text with stroke
+    ctx.strokeStyle = 'gray';
+    ctx.lineWidth = 5;
+    ctx.strokeText(text, posx, posy);
+
+    // Draw the text
+    ctx.fillText(text, posx, posy);
+}
+
 function animateInvaders() {
     framenb++;
     if (framenb >= 16) {
         framenb = 0;
-        doInvadersFire();
     }
 
     if (canStep(stepx))
@@ -175,10 +195,6 @@ function animateInvaders() {
     else {
         stepx = -stepx;
         y += stepy;
-        if (y + 24 > canvas.height) {
-            x = 0;
-            y = 0;
-        }
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -224,6 +240,32 @@ function animateInvaders() {
         bullets = bullets.filter((bullet) => bullet[1] > 0);
     }
 
+    if (isPlaying && (framenb == 0)) {
+        // Invaders fire
+        let posx = 0;
+        let posy = 0;
+
+        for (let i = 0; i < 8; i++) {
+            let maxj = -1;
+            for (let j = 0; j < 5; j++) {
+                if (invaders[j][i]) {
+                    maxj = j;
+                    posx = 32 * i + Math.floor(x) + 16;
+                    posy = 24 * j + y + 24 + 7;
+                }
+            }
+
+            if (maxj >= 0) {
+                if (Math.random() < 0.1) {
+                    let newbullet = [posx, posy, 3];
+                    bullets.push(newbullet);
+
+                    ctx.drawImage(missiledown, posx - 1, posy - 3);
+                }
+            }
+        }
+    }
+
     // Draw the bunkers destructed by bullets
     let imageData = offscreenctx.getImageData(0, 0, canvas.width, canvas.height);
     let data = imageData.data;
@@ -244,7 +286,6 @@ function animateInvaders() {
             }
 
             if (hit) {
-                console.log("Hit bunker");
                 for (let i = -2; i <= 2; i++) {
                     for (let j = -3; j <= 3; j++) {
                         data[offset + 4 * (j * canvas.width + i) + 3] = 0;
@@ -328,6 +369,14 @@ function animateInvaders() {
         // Request the next frame
         requestAnimationFrame(animateInvaders);
     }
+    else {
+        if (gameOver) {
+            displayState('GAME OVER !');
+        }
+        else {
+            displayState('GET READY !');
+        }
+    }
 }
 
 /* Wait for every sprite is Loaded */
@@ -400,31 +449,6 @@ function doFire() {
         bullets.push(newbullet);
 
         heat += 100;
-    }
-}
-
-function doInvadersFire() {
-    let posx = 0;
-    let posy = 0;
-
-    if (isPlaying) {
-        for (let i = 0; i < 8; i++) {
-            let maxj = -1;
-            for (let j = 0; j < 5; j++) {
-                if (invaders[j][i]) {
-                    maxj = j;
-                    posx = 32 * i + Math.floor(x) + 16;
-                    posy = 24 * j + y + 24 + 6;
-                }
-            }
-
-            if (maxj >= 0) {
-                if (Math.random() < 0.1) {
-                    let newbullet = [posx, posy, 3];
-                    bullets.push(newbullet);
-                }
-            }
-        }
     }
 }
 
