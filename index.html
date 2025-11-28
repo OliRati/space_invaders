@@ -16,15 +16,26 @@
             <div id="gamestatus">Ready player</div>
             <canvas id="spaceinvaders" width="320" height="320"></canvas>
         </div>
-        <div>Left : Go Left</div>
-        <div>Right : Go Right</div>
-        <div>P : Play/Pause</div>
-        <div>F : Fire</div>
+
+        <div id="usage">
+            <div>Key map :</div>
+            <div>
+                <div>'<img class="svgs" src="./assets/img/arrow-left.svg" alt="Left arrow">' Left</div>
+                <div>'<img class="svgs" src="./assets/img/arrow-right.svg" alt="Right arrow">' Right</div>
+                <div>'P' Play/Pause</div>
+                <div>'F' Fire</div>
+            </div>
+        </div>
+
         <div id="commands">
             <button id="playbutton">Play</button>
-            <button id="left">&lt;-</button>
+            <button id="left">
+                <div class="svgs"><img src="./assets/img/arrow-left.svg" alt="Left arrow"></div>
+            </button>
             <button id="firebutton">Fire</button>
-            <button id="right">&gt;</button>
+            <button id="right">
+                <div class="svgs"><img src="./assets/img/arrow-right.svg" alt="Right arrow"></div>
+            </button>
         </div>
     </div>
 </body>
