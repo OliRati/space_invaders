@@ -10,20 +10,22 @@
 </head>
 
 <body>
-    <h1>A tribute to Space Invaders</h1>
-    <div id="background">
-        <div id="gamestatus">Ready player</div>
-        <canvas id="spaceinvaders" width="320" height="320"></canvas>
-    </div>
-    <div>Left  : Go Left</div>
-    <div>Right : Go Right</div>
-    <div>P     : Play/Pause</div>
-    <div>F     : Fire</div>
-    <div id="commands">
-        <input type="button" id="playbutton" value="Play Game">
-        <input type="button" id="left" value="<-">
-        <input type="button" id="firebutton" value="Fire">
-        <input type="button" id="right" value="->">
+    <div id="gameContainer">
+        <h1>A tribute to the classic<br>Space Invaders</h1>
+        <div id="background">
+            <div id="gamestatus">Ready player</div>
+            <canvas id="spaceinvaders" width="320" height="320"></canvas>
+        </div>
+        <div>Left : Go Left</div>
+        <div>Right : Go Right</div>
+        <div>P : Play/Pause</div>
+        <div>F : Fire</div>
+        <div id="commands">
+            <button id="playbutton">Play</button>
+            <button id="left">&lt;-</button>
+            <button id="firebutton">Fire</button>
+            <button id="right">&gt;</button>
+        </div>
     </div>
 </body>
 

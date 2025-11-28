@@ -461,14 +461,14 @@ function doPlayPause() {
             newLevel(true);
         }
 
-        playButton.value = "Pause Game";
+        playButton.innerText = "Pause";
 
         // Start the animation
         requestAnimationFrame(animateInvaders);
     }
     else {
         isPlaying = false;
-        playButton.value = "Play Game";
+        playButton.innerText = "Play";
     }
 }
 
