@@ -11,17 +11,12 @@ body {
 
 #gameContainer {
     background-color: blanchedalmond;
-    border: 2px solid lightgray;
-    border-radius: 2rem;
-    width: fit-content;
-    padding: 2rem;
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    width: 100vw;
+    height: 100vh;
 }
 
 #usage {
+    display: none;
     font-size: 1rem;
     font-weight: 600;
     margin: 0.5rem 0;
@@ -52,6 +47,7 @@ h1 {
     font-size: 1.6em;
     text-align: center;
     margin-bottom: 1rem;
+    padding-top: 1rem;
     font-family: sans-serif;
     font-weight: 900;
     font-size: 1.5rem;
@@ -60,29 +56,40 @@ h1 {
 #spaceinvaders {
     border: 1px solid black;
     background-color: lightgray;
-    padding: 0.5rem;
+    padding: 0.2rem;
 }
 
 #commands {
+    margin-top: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
     align-items: center;
+
+    button {
+        width: 31%;
+        height: 50px;
+        border-radius: .5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        box-shadow: .5rem .5rem .5rem gray;
+    }
+
+    button:hover {
+        transform: translate(.1rem, .1rem);
+        transition: all 0.3s;
+    }
+
+    button:first-child {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
 }
 
-button {
-    width: 24%;
-    height: 50px;
-    border-radius: .5rem;
-    font-size: 1rem;
-    font-weight: 600;
-    border: none;
-    box-shadow: .5rem .5rem .5rem gray;
-}
-
-button:hover {
-    transform: translate(.1rem, .1rem);
-    transition: all 0.3s;
-}
 
 #gamestatus {
     font-size: 1.2em;
@@ -92,16 +99,59 @@ button:hover {
 #background {
     background-color: gray;
     border-radius: 15px;
-    width: 380px;
-    height: 380px;
-    padding-bottom: 0.5rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    margin: 0 auto;
+    width: fit-content;
+    padding: .5rem;
 }
 
-#spaceinvaders {
-    margin-left: auto;
-    margin-right: auto;
+@media screen and (min-width: 576px) {
+    h1 {
+        padding-top: unset;
+    }
+
+    #usage {
+        display: block;
+    }
+
+    #commands {
+        width: unset;
+        margin-top: unset;
+        margin-left: unset;
+        margin-right: unset;
+
+
+        button {
+            width: 23%;
+        }
+        
+        button:first-child {
+            width: 23%;
+            margin-bottom: unset;
+        }
+    }
+
+    #gameContainer {
+        border: 2px solid lightgray;
+        border-radius: 2rem;
+        width: fit-content;
+        padding: 2rem;
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: unset;
+        height: unset;
+    }
+
+    #background {
+        padding: 1rem;
+    }
+
+    #spaceinvaders {
+        padding: 0.5rem;
+    }
 }
