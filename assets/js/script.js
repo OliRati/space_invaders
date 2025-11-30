@@ -21,7 +21,8 @@ const spr_list = [
     './assets/img/tourelle.png',
     './assets/img/missileup.png',
     './assets/img/missiledown.png',
-    './assets/img/bunker.png'
+    './assets/img/bunker.png',
+    './assets/img/missiledownmask.png'
 ];
 
 const sprite01 = new Image();
@@ -47,6 +48,9 @@ missiledown.src = spr_list[6];
 
 const bunker = new Image();
 bunker.src = spr_list[7];
+
+const missiledownmask = new Image();
+missiledownmask.src = spr_list[8];
 
 let framenb = 0;
 let heat = 0;
@@ -223,9 +227,9 @@ function animateInvaders() {
         let newbulletpos = bullets[i][1] + bullets[i][2];
         if ((newbulletpos > 0) && (newbulletpos < canvas.height)) {
             if (bullets[i][2] < 0)
-                ctx.drawImage(missileup, bullets[i][0] - 1, newbulletpos - 3);
+                ctx.drawImage(missileup, bullets[i][0] - 3, newbulletpos - 3);
             else if (bullets[i][2] > 0)
-                ctx.drawImage(missiledown, bullets[i][0] - 1, newbulletpos - 3);
+                ctx.drawImage(missiledown, bullets[i][0] - 3, newbulletpos - 3);
 
             bullets[i][1] = newbulletpos;
         }
@@ -421,6 +425,10 @@ missiledown.onload = function () {
 }
 
 bunker.onload = function () {
+    checkEverythingLoaded();
+}
+
+missiledownmask.onload = function () {
     checkEverythingLoaded();
 }
 
