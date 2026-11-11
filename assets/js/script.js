@@ -163,7 +163,7 @@ function canStep(step) {
         gameOver = true;
         isPlaying = false;
         document.getElementById("gamestatus").innerHTML = 'You failed, invasion is complete !';
-        playButton.value = "Play Game";
+        playButton.innerText = "Play";
     }
 
     return canmove;
@@ -339,7 +339,7 @@ function animateInvaders() {
             gameOver = true;
             isPlaying = false;
             document.getElementById("gamestatus").innerHTML = '<div style="color: red;">Cannon was hit, you failed !</div>';
-            playButton.value = "Play Game";
+            playButton.innerText = "Play";
         }
 
         if (heat < 10)
@@ -348,7 +348,7 @@ function animateInvaders() {
             gameOver = true;
             isPlaying = false;
             document.getElementById("gamestatus").innerHTML = '<div style="color: red;">Gun explosion due to heat, you failed !</div>';
-            playButton.value = "Play Game";
+            playButton.innerText = "Play";
         }
         else {
             heat -= 10;
@@ -378,8 +378,9 @@ function animateInvaders() {
     else {
         if (gameOver) {
             displayState('GAME OVER !');
-        }
-        else {
+        } else if (!isPlaying) {
+            displayState('PAUSED !');
+        } else {
             displayState('GET READY !');
         }
     }
