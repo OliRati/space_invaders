@@ -60,6 +60,31 @@ h1 {
     padding: 0.2rem;
 }
 
+.touch-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    font-size: 24px;
+    background-color: #333;
+    color: white;
+    border: 2px solid #666;
+
+    touch-action: none;
+    user-select: none;
+    --webkit-user-select: none;
+    --webkit-touch-callout: none;
+}
+
+.touch-btn:hover {
+    transform: translate(.1rem, .1rem);
+    transition: all 0.3s;
+}
+
+.touch-btn.active {
+    background-color: #007bff;
+    transform: scale(0.95);
+}
+
 #commands {
     margin-top: 1rem;
     margin-left: auto;
@@ -69,21 +94,6 @@ h1 {
     justify-content: space-between;
     flex-wrap: wrap;
     align-items: center;
-
-    button {
-        width: 31%;
-        height: 50px;
-        border-radius: .5rem;
-        font-size: 1rem;
-        font-weight: 600;
-        border: none;
-        box-shadow: .5rem .5rem .5rem gray;
-    }
-
-    button:hover {
-        transform: translate(.1rem, .1rem);
-        transition: all 0.3s;
-    }
 
     button:first-child {
         width: 100%;

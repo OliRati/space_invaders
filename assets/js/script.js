@@ -1,3 +1,5 @@
+const playButton = document.getElementById("playbutton");
+
 // Chek if the browser supports tactile events
 if ('ontouchstart' in window) {
     document.body.classList.add('tactile');
@@ -506,14 +508,57 @@ document.body.addEventListener("keyup", (ev) => {
     }
 })
 
-const goLeft = document.getElementById("left");
-goLeft.addEventListener('click', doGoLeft);
+const buttons = document.querySelectorAll(".touch-btn");
 
-const goRight = document.getElementById("right");
-goRight.addEventListener("click", doGoRight);
+buttons.forEach(btn => {
+    // Block the right-click / long presses context menu
+    btn.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+    });
 
-const fireButton = document.getElementById("firebutton");
-fireButton.addEventListener('click', doFire);
+    // Trigger when finger touches the button
+    btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
 
-const playButton = document.getElementById("playbutton");
-playButton.addEventListener('click', doPlayPause);
+        // Locks the pointer to this button even if the finger slides slightly off
+        btn.setPointerCapture(e.pointerId);
+        btn.classList.add('active');
+
+        switch (btn.id) {
+            case 'left':
+                pressedKeys["left"] = 1;
+                break;
+            case 'right':
+                pressedKeys["right"] = 1;
+                break;
+            case 'firebutton':
+                pressedKeys["fire"] = 1;
+                break;
+            case 'playbutton':
+                doPlayPause();
+                break;
+        }
+    });
+
+    // Trigger when the finger lifts or gets interrupted
+    const releaseButton = (e) => {
+        if (btn.classList.contains('active')) {
+            btn.classList.remove('active');
+
+            switch (btn.id) {
+                case 'left':
+                    pressedKeys["left"] = 0;
+                    break;
+                case 'right':
+                    pressedKeys["right"] = 0;
+                    break;
+                case 'firebutton':
+                    pressedKeys["fire"] = 0;
+                    break;
+            }
+        }
+    }
+
+    btn.addEventListener('pointerup', releaseButton);
+    btn.addEventListener('pointercancel', releaseButton);
+});
