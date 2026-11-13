@@ -63,7 +63,8 @@ let stepx = 1;
 let stepy = 5;
 let level = 0;
 let isPlaying = false;
-let gameOver = false;
+let isPaused = false;
+let isGameOver = false;
 let hitcannon = false;
 
 let cannonpos = 0;
@@ -160,7 +161,8 @@ function canStep(step) {
     }
 
     if (lost) {
-        gameOver = true;
+        isGameOver = true;
+        isPaused = false;
         isPlaying = false;
         document.getElementById("gamestatus").innerHTML = 'You failed, invasion is complete !';
         playButton.innerText = "Play";
@@ -190,7 +192,25 @@ function displayState(text) {
     ctx.fillText(text, posx, posy);
 }
 
-function animateInvaders() {
+let previousChrono = undefined;
+
+function animateInvaders(chrono) {
+    if (previousChrono === undefined) {
+        previousChrono = chrono;
+    }
+
+    const frameChrono = chrono - previousChrono;
+
+    if (frameChrono < 10) {
+        if (isPlaying && !isPaused) {
+            // Request the next frame
+            requestAnimationFrame(animateInvaders);
+        }
+        return;
+    }
+
+    previousChrono = chrono;
+
     framenb++;
     if (framenb >= 16) {
         framenb = 0;
@@ -246,7 +266,7 @@ function animateInvaders() {
         bullets = bullets.filter((bullet) => bullet[1] > 0);
     }
 
-    if (isPlaying && (framenb == 0)) {
+    if (isPlaying && !isPaused && (framenb == 0)) {
         // Invaders fire
         let posx = 0;
         let posy = 0;
@@ -334,9 +354,9 @@ function animateInvaders() {
     else
         ctx.drawImage(cannon, cannonpos - 16, canvas.height - 24);
 
-    if (isPlaying) {
+    if (isPlaying && !isPaused) {
         if (hitcannon) {
-            gameOver = true;
+            isGameOver = true;
             isPlaying = false;
             document.getElementById("gamestatus").innerHTML = '<div style="color: red;">Cannon was hit, you failed !</div>';
             playButton.innerText = "Play";
@@ -345,7 +365,7 @@ function animateInvaders() {
         if (heat < 10)
             heat = 0;
         else if (heat > 1000) {
-            gameOver = true;
+            isGameOver = true;
             isPlaying = false;
             document.getElementById("gamestatus").innerHTML = '<div style="color: red;">Gun explosion due to heat, you failed !</div>';
             playButton.innerText = "Play";
@@ -371,16 +391,16 @@ function animateInvaders() {
         }
     }
 
-    if (isPlaying) {
+    if (isPlaying && !isPaused) {
         // Request the next frame
         requestAnimationFrame(animateInvaders);
     }
     else {
-        if (gameOver) {
+        if (isGameOver) {
             displayState('GAME OVER !');
-        } else if (!isPlaying) {
+        } else if (isPaused) {
             displayState('PAUSED !');
-        } else {
+        } else if (!isPlaying) {
             displayState('GET READY !');
         }
     }
@@ -438,21 +458,21 @@ missiledownmask.onload = function () {
 /* Animate functions */
 
 function doGoLeft() {
-    if (isPlaying) {
+    if (isPlaying && !isPaused) {
         if (cannonpos >= (4 + 8))
             cannonpos -= 4;
     }
 }
 
 function doGoRight() {
-    if (isPlaying) {
+    if (isPlaying && !isPaused) {
         if (cannonpos <= (canvas.width - 4 - 8))
             cannonpos += 4;
     }
 }
 
 function doFire() {
-    if (isPlaying) {
+    if (isPlaying && !isPaused) {
         let posx = cannonpos;
         let posy = canvas.height - 24;
         let newbullet = [posx, posy, -3];
@@ -464,23 +484,29 @@ function doFire() {
 }
 
 function doPlayPause() {
-    if (!isPlaying) {
+    if (isPlaying) {
+        if (isPaused) {
+            isPaused = false;
+        } else {
+            isPaused = true;
+            playButton.innerText = "Cont";
+            return;
+        }
+    } else {
+        // Start a new game
         isPlaying = true;
+        isPaused = false;
 
-        if (gameOver) {
-            gameOver = false;
+        if (isGameOver) {
+            isGameOver = false;
             newLevel(true);
         }
-
-        playButton.innerText = "Pause";
-
-        // Start the animation
-        requestAnimationFrame(animateInvaders);
     }
-    else {
-        isPlaying = false;
-        playButton.innerText = "Play";
-    }
+
+    playButton.innerText = "Pause";
+
+    // Start the animation
+    requestAnimationFrame(animateInvaders);
 }
 
 document.body.addEventListener("keydown", (ev) => {
