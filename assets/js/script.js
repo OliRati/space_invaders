@@ -78,6 +78,16 @@ let pressedKeys = {
     fire: 0,
 };
 
+const bulletExplodeMask = [
+    [1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1],
+    [0, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 1, 1, 0],
+    [0, 0, 1, 1, 1, 0, 0]
+];
+
 function newLevel(reset) {
     if (reset) {
         level = 0;
@@ -297,6 +307,7 @@ function animateInvaders(chrono) {
     for (let nb = 0; nb < bullets.length; nb++) {
         let xPos = bullets[nb][0];
         let yPos = bullets[nb][1];
+        let move = bullets[nb][2];
 
         let offset = 4 * (yPos * canvas.width + xPos);
 
@@ -309,9 +320,22 @@ function animateInvaders(chrono) {
             }
 
             if (hit) {
-                for (let i = -2; i <= 2; i++) {
-                    for (let j = -3; j <= 3; j++) {
-                        data[offset + 4 * (j * canvas.width + i) + 3] = 0;
+                if (move > 0) {
+                    // Bullets from invaders
+                    for (let i = -3; i <= 3; i++) {
+                        for (let j = -3; j <= 3; j++) {
+                            if (bulletExplodeMask[i + 3][j + 3])
+                                data[offset + 4 * (i * canvas.width + j) + 3] = 0;
+                        }
+                    }
+                }
+                else {
+                    // Bullets from tank
+                    for (let i = -3; i <= 3; i++) {
+                        for (let j = -3; j <= 3; j++) {
+                            if (bulletExplodeMask[3 - i][j + 3])
+                                data[offset + 4 * (i * canvas.width + j) + 3] = 0;
+                        }
                     }
                 }
 
