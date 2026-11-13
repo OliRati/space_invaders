@@ -202,10 +202,7 @@ function animateInvaders(chrono) {
     const frameChrono = chrono - previousChrono;
 
     if (frameChrono < 10) {
-        if (isPlaying && !isPaused) {
-            // Request the next frame
-            requestAnimationFrame(animateInvaders);
-        }
+        requestAnimationFrame(animateInvaders);
         return;
     }
 
